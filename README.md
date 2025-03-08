@@ -11,4 +11,4 @@
 
 ### See a small ``Glimpse`` of this project
 
-![App Screenshot](pics/screenshot.png)
+![App Screenshot](pics/Screenshot.png)
