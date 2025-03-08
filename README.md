@@ -1,4 +1,4 @@
-# 🚀 My Project  
+# 🚀✨ Interactive Blogging & Chat Hub 💻🌟🎉
 
 ## 🌟 Features  
 - ⚡ **Fast and Responsive** – Enjoy a seamless and smooth experience.  
