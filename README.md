@@ -11,4 +11,4 @@
 
 ### See a small ``Glimpse`` of this project
 
-![App Screenshot](/pics/Screenshot 2025-03-08 214224.png)
+![App Screenshot](pics/screenshot.png)
