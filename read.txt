@@ -1,0 +1,3 @@
+mongod --dbpath "D:\mongo db"
+
+mongosh

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Contact Management</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Edu+AU+VIC+WA+NT+Hand:wght@400..700&family=Quicksand:wght@300..700&display=swap');
+body{
+    width:100%;min-height:160vh;
+}
+        .finalSubLast {
+    background:#000;border:none;margin:10px;color:#fff;padding:10px;
+}
+.finalproja1 {
+    position:relative;
+background:#fff;border:none;font-size:14px;
+}
+.finalproja1:hover {
+    background:#000;color:#fff;
+}
+.literallyaffect {
+    background:#000;color:#fff;border:none;
+}
+.literallyaffect:hover {
+    background:#fff;color:#000;
+}
+    </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 style="margin:10px;margin-bottom: 20px;text-align:center;font-family: 'Edu AU VIC WA NT Hand', cursive;">Contact &nbsp;&nbsp;&nbsp;Management</h1>
+    <form id="contactForm">
+      <div class="form-group">
+        <label for="username" style="position:relative;margin:10px;font-size:18px;">Username</label>
+        <input type="text" class="form-control" id="username" name="username" style="position:relative;width:60%;border:1px solid #000;left:10%;top:10px;" required minlength="3" maxlength="20">
+      </div>
+      <div class="form-group">
+        <label for="email" style="position:relative;margin:10px;font-size:18px;">Email</label>
+        <input type="email" class="form-control" id="email" name="email" style="position:relative;width:60%;border:1px solid #000;left:10%;top:10px;" required>
+      </div>
+      <div class="form-group">
+        <label for="phone" style="position:relative;margin:10px;font-size:18px;">Phone</label>
+        <input type="text" class="form-control" id="phone" name="phone" style="position:relative;width:60%;border:1px solid #000;left:10%;top:10px;" required pattern="\d{10}">
+      </div>
+      <div class="form-group">
+        <label for="address"style="position:relative;margin:10px;font-size:18px;">Address</label>
+        <input type="text" class="form-control" id="address" name="address"style="position:relative;width:60%;border:1px solid #000;left:10%;top:10px;" required minlength="8">
+      </div>
+      <button type="submit" class="btn btn-primary finalSubLast" style="position:relative;top:30px;transition:0.5s;">Add Contact</button>
+    </form>
+    <div class="finalContact" style="position:relative;top:50px;">
+        <h2 style="position:relative;top:10px;margin:10px;font-size:2.5em;text-align:center;font-family: 'Edu AU VIC WA NT Hand', cursive;">Contact List</h2>
+        <ul id="contactList" class="list-group" style="position:relative;top:40px;margin:20px;margin-bottom:20px;">
+          <!-- Contact list will be dynamically loaded here -->
+        </ul>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      function loadContacts() {
+        $.get('/contacts', function(data) {
+          if (data.success) {
+            const contactList = $('#contactList');
+            contactList.empty();
+            data.contacts.forEach(contact => {
+              const contactItem = $(`
+                <li class="list-group-item">
+                  <strong>${contact.username}</strong> - ${contact.email} - ${contact.phone} - ${contact.address}
+                  <button class="btn btn-danger btn-sm float-right delete-contact literallyaffect" data-id="${contact._id}">Delete</button>
+                  <button class="btn btn-warning btn-sm float-right edit-contact mr-2 finalproja1" data-id="${contact._id}" data-username="${contact.username}" data-email="${contact.email}" data-phone="${contact.phone}" data-address="${contact.address}">Edit</button>
+                </li>
+              `);
+              contactList.append(contactItem);
+            });
+          }
+        });
+      }
+
+      function validateForm() {
+    const username = $('#username').val();
+    const email = $('#email').val();
+    const phone = $('#phone').val();
+    const address = $('#address').val();
+
+    if (username.length < 3 || username.length > 20) {
+      alert('Username must be between 3 and 20 characters.');
+      return false;
+    }
+
+    if (!/^\d{10}$/.test(phone)) {
+      alert('Phone number must be 10 digits.');
+      return false;
+    }
+
+    if (address.length < 5) {
+      alert('Address must be at least 5 characters.');
+      return false;
+    }
+
+    return true;
+  }
+      $('#contactForm').on('submit', function(e) {
+        e.preventDefault();
+        const contactData = {
+          username: $('#username').val(),
+          email: $('#email').val(),
+          phone: $('#phone').val(),
+          address: $('#address').val()
+        };
+        $.post('/contacts', contactData)
+    .done(function(data) {
+      if (data.success) {
+        loadContacts();
+        $('#contactForm')[0].reset();
+      } else {
+        alert('Error adding contact: ' + data.message);
+      }
+    })
+    .fail(function(xhr, status, error) {
+      console.error('Error:', status, error);
+      alert('An error occurred while adding the contact.');
+    });
+});
+      $('#contactList').on('click', '.delete-contact', function() {
+        const contactId = $(this).data('id');
+
+        $.ajax({
+          url: `/contacts/${contactId}`,
+          type: 'DELETE',
+          success: function(data) {
+            if (data.success) {
+              loadContacts();
+            } else {
+              alert('Error deleting contact: ' + data.message);
+            }
+          }
+        });
+      });
+
+      $('#contactList').on('click', '.edit-contact', function() {
+        const contactId = $(this).data('id');
+        const username = $(this).data('username');
+        const email = $(this).data('email');
+        const phone = $(this).data('phone');
+        const address = $(this).data('address');
+
+        $('#username').val(username);
+        $('#email').val(email);
+        $('#phone').val(phone);
+        $('#address').val(address);
+
+        $('#contactForm').off('submit').on('submit', function(e) {
+          e.preventDefault();
+          const updatedContactData = {
+            username: $('#username').val(),
+            email: $('#email').val(),
+            phone: $('#phone').val(),
+            address: $('#address').val()
+          };
+
+          $.ajax({
+            url: `/contacts/${contactId}`,
+            type: 'PUT',
+            data: updatedContactData,
+            success: function(data) {
+              if (data.success) {
+                loadContacts();
+                $('#contactForm')[0].reset();
+                $('#contactForm').off('submit').on('submit', function(e) {
+                  e.preventDefault();
+                  const contactData = {
+                    username: $('#username').val(),
+                    email: $('#email').val(),
+                    phone: $('#phone').val(),
+                    address: $('#address').val()
+                  };
+
+                  $.post('/contacts', contactData, function(data) {
+                    if (data.success) {
+                      loadContacts();
+                      $('#contactForm')[0].reset();
+                    } else {
+                      alert('Error adding contact: ' + data.message);
+                    }
+                  });
+                });
+              } else {
+                alert('Error updating contact: ' + data.message);
+              }
+            }
+          });
+        });
+      });
+
+      loadContacts();
+    });
+  </script>
+</body>
+</html>

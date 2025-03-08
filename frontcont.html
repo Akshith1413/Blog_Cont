@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Contact Management</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Edu+AU+VIC+WA+NT+Hand:wght@400..700&family=Quicksand:wght@300..700&display=swap');
+    body {
+      width: 100%;
+      min-height: 100vh;
+    }
+    li {
+        font-size:20px;padding:10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 style="margin: 10px; margin-bottom: 20px; text-align: center; font-family: 'Edu AU VIC WA NT Hand', cursive;">Contact List</h1>
+    <div class="finalContact" style="position: relative; top: 50px;">
+      <ul id="contactList" class="list-group" style="position: relative; top: 40px; margin: 20px; margin-bottom: 20px;">
+        <!-- Contact list will be dynamically loaded here -->
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      function loadContacts() {
+        $.get('/contacts', function(data) {
+          if (data.success) {
+            const contactList = $('#contactList');
+            contactList.empty();
+            data.contacts.forEach(contact => {
+              const contactItem = $(`
+                <li class="list-group-item">
+                  <strong>${contact.username}</strong>&nbsp;&nbsp; - &nbsp;&nbsp;${contact.email} - ${contact.phone} - ${contact.address}
+                </li>
+              `);
+              contactList.append(contactItem);
+            });
+          }
+        });
+      }
+
+      loadContacts();
+    });
+  </script>
+</body>
+</html>

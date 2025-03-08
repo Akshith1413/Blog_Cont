@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Edu+AU+VIC+WA+NT+Hand:wght@400..700&display=swap');
+body {
+  background-color: #f45b69;
+  font-family: "Asap", sans-serif;
+}
+
+.login {
+  overflow: hidden;
+  background-color: white;
+  padding: 40px 30px 30px 30px;
+  border-radius: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 400px;
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  -webkit-transition: -webkit-transform 300ms, box-shadow 300ms;
+  -moz-transition: -moz-transform 300ms, box-shadow 300ms;
+  transition: transform 300ms, box-shadow 300ms;
+  box-shadow: 5px 10px 10px rgba(2, 128, 144, 0.2);
+}
+.login::before, .login::after {
+  content: "";
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-top-left-radius: 40%;
+  border-top-right-radius: 45%;
+  border-bottom-left-radius: 35%;
+  border-bottom-right-radius: 40%;
+  z-index: -1;
+}
+.login::before {
+  left: 40%;
+  bottom: -130%;
+  background-color: rgba(69, 105, 144, 0.15);
+  -webkit-animation: wawes 6s infinite linear;
+  -moz-animation: wawes 6s infinite linear;
+  animation: wawes 6s infinite linear;
+}
+.login::after {
+  left: 35%;
+  bottom: -125%;
+  background-color: rgba(2, 128, 144, 0.2);
+  -webkit-animation: wawes 7s infinite;
+  -moz-animation: wawes 7s infinite;
+  animation: wawes 7s infinite;
+}
+.login > input {
+  background: white;
+  position:relative;padding-left:20px;display:block;border:0;width:100%;
+    top:26px;margin-bottom:20px;border-radius:10px;font-family:arial;font-size:18px;letter-spacing:1px;padding:10px;
+
+}
+.login > button {position:relative;
+    top:20px;
+  font-family: "Asap", sans-serif;
+  cursor: pointer;
+  color: #fff;
+  font-size: 16px;
+  text-transform: uppercase;
+  width: 80px;
+  border: 0;
+  padding: 10px 0;
+  margin-top: 10px;
+  margin-left: -5px;
+  border-radius: 5px;
+  background-color: #f45b69;
+  -webkit-transition: background-color 300ms;
+  -moz-transition: background-color 300ms;
+  transition: background-color 300ms;
+}
+.login > button:hover {
+  background-color: #f24353;
+}
+
+@-webkit-keyframes wawes {
+  from {
+    -webkit-transform: rotate(0);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+@-moz-keyframes wawes {
+  from {
+    -moz-transform: rotate(0);
+  }
+  to {
+    -moz-transform: rotate(360deg);
+  }
+}
+@keyframes wawes {
+  from {
+    -webkit-transform: rotate(0);
+    -moz-transform: rotate(0);
+    -ms-transform: rotate(0);
+    -o-transform: rotate(0);
+    transform: rotate(0);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+.forgot__heading
+{
+    font-family: "Edu AU VIC WA NT Hand", cursive;font-size: 2.5em;margin:10px;margin-bottom: 20px;
+}
+.login input[type="text"] {}
+.forgot__passButto {
+    position:relative;
+    top:20px;
+}
+.forgot__heading__apend {
+    text-align:center;font-family: "Edu AU VIC WA NT Hand", cursive;font-size:1.9em;
+}
+    </style>
+</head>
+<body>
+    <form id="forgotPassForm" class="login">
+        <h1 class="forgot__heading">Forgot Password?</h1>
+        <h3 id="emailPrompt" style="font-family:'Quicksand', sans-serif;letter-spacing:1px;position:relative;top:25px;font-size:20px;">Type your email address</h3>
+        <input type="email" placeholder="Email" id="emailInput" class="forgot__PassEmail">
+        <button type="button" id="checkEmailButton" style="font-weight: 900;font-family:'Quicksand';letter-spacing:1px;">Check</button>
+    </form>
+      <script>document.getElementById('checkEmailButton').addEventListener('click', checkEmail);
+
+        async function checkEmail() {
+            const email = document.getElementById('emailInput').value;
+            const response = await fetch('/check-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email })
+            });
+            const result = await response.json();
+
+            if (!result.exists) {
+                alert("User doesn't exist");
+            } else {
+                document.getElementById('emailInput').style.display = 'none';
+                document.getElementById('checkEmailButton').style.display = 'none';
+                document.getElementById('emailPrompt').style.display = 'none';
+                const hiddenEmailInput = document.createElement('input');
+                hiddenEmailInput.type = 'hidden';
+                hiddenEmailInput.id = 'hiddenEmailInput';
+                hiddenEmailInput.value = email;
+                document.getElementById('forgotPassForm').appendChild(hiddenEmailInput);
+                const form = document.getElementById('forgotPassForm');
+                form.innerHTML += `
+                    <h4 class="forgot__heading__apend">Reset Now</h4>
+                    <h3>Enter new password</h3>
+                    <input type="password" placeholder="New Password" id="newPassword" required>
+                    <input type="password" placeholder="Retype New Password" id="retypePassword" required>
+                <ul style="position:relative;top:20px;">    <p class="warn_text"><span>Note: <br></span></p><li>Should have atleast 8 characters</li>
+                    <li>Must include special character</li>
+                    <li>Must include numbers</li>
+                 </ul>   <button type="button" id="resetPasswordButton" class="reset__apended">Reset</button>
+                `;
+                document.getElementById('resetPasswordButton').addEventListener('click', resetPassword);
+            }
+        }
+
+        async function resetPassword() {
+            const email = document.getElementById('hiddenEmailInput').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const retypePassword = document.getElementById('retypePassword').value;
+
+            if (newPassword !== retypePassword) {
+                alert("Passwords do not match");
+                return;
+            }
+
+            const response = await fetch('/reset-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, newPassword })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert("Password reset successfully");
+            } else {
+                alert("Error resetting password: " + result.message);
+            }
+        }
+    </script>
+</body>
+</html>

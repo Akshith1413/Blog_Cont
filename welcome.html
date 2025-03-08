@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f0f2f5;
+}
+
+header {
+    background: #4267B2;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+}
+
+main {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+
+#postForm {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+#postForm textarea {
+    width: 100%;
+    height: 100px;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+#postForm input[type="file"] {
+    margin-bottom: 10px;
+}
+
+#postsContainer {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.post {
+    margin-bottom: 20px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.post img, .post video {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+
+    </style>
+</head>
+<body>
+    <h1 id="welcomeMessage"></h1>
+    <main>
+        <section id="postForm">
+            <h2>Create a Post</h2>
+            <form id="postFormElement" enctype="multipart/form-data">
+                <textarea id="postText" placeholder="What's on your mind?" required></textarea>
+                <input type="file" id="postMedia" multiple>
+                <button type="submit">Post</button>
+            </form>
+        </section>
+        <section id="postsContainer">
+            <h2>Posts</h2>
+            <div id="posts"></div>
+        </section>
+    </main>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const username = urlParams.get('username');
+
+  if (username) {
+    document.getElementById('welcomeMessage').textContent = `Welcome, ${username}!`;
+  } else {
+    window.location.href = 'index.html';  // Redirect to index.html if no username is found
+  }
+
+  // Fetch and display posts
+  fetchPosts();
+});
+
+document.getElementById('postFormElement').addEventListener('submit', async (event) => {
+  event.preventDefault();  // Prevent the default form submission
+
+  const formData = new FormData();
+  formData.append('text', document.getElementById('postText').value);
+  
+  const files = document.getElementById('postMedia').files;
+  for (const file of files) {
+    formData.append('media', file);
+  }
+
+  try {
+    const response = await fetch('/api/posts', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const result = await response.json();
+    console.log(result); // Handle the result or update the UI
+    document.getElementById('postFormElement').reset();
+    fetchPosts(); // Refresh posts after successful submission
+  } catch (error) {
+    console.error('Error:', error);
+  }
+});
+
+async function fetchPosts() {
+  try {
+    const response = await fetch('/api/posts');
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const posts = await response.json();
+    const postsContainer = document.getElementById('posts');
+    postsContainer.innerHTML = ''; // Clear the container
+
+    posts.forEach(post => {
+      const postElement = document.createElement('div');
+      postElement.className = 'post';
+      postElement.innerHTML = `
+        <p>${post.text}</p>
+        ${post.imageFiles.length ? post.imageFiles.map(file => `<img src="/files/${file.filename}" alt="${file.filename}" style="max-width: 100%; height: auto;">`).join('') : ''}
+        ${post.videoFiles.length ? post.videoFiles.map(file => `<video controls style="max-width: 100%; height: auto;"><source src="/files/${file.filename}" type="${file.contentType}"></video>`).join('') : ''}
+      `;
+      postsContainer.appendChild(postElement);
+    });
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+  }
+}
+    </script>
+</body>
+</html>
